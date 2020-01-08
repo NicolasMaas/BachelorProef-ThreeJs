@@ -1,0 +1,13 @@
+.o-container {
+	max-width: $breakpoint;
+	margin: 0 auto;
+}
+
+.o-container--fluid {
+	width: 100%;
+	margin: 0;
+}
+
+.o-container--first {
+	padding-top: 40px;
+}

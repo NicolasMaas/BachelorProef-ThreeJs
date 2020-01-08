@@ -1,0 +1,35 @@
+/* 
+    Only import general stuff which we need in the entire project
+*/
+
+// 1. Settings
+@import './1-settings/border.scss';
+@import './1-settings/breakpoints.scss';
+@import './1-settings/colors.scss';
+@import './1-settings/fonts.scss';
+@import './1-settings/shadows.scss';
+
+// 2. Tools
+
+// 3. Generic
+@import './3-generic/reset.scss';
+
+// 4. Elements
+@import './4-elements/buttons.scss';
+@import './4-elements/headers.scss';
+@import './4-elements/hr.scss';
+@import './4-elements/page.scss';
+
+// 5. Objects
+@import './5-objects/buttons.scss';
+@import './5-objects/container.scss';
+@import './5-objects/hide.scss';
+@import './5-objects/row.scss';
+
+// 6. Components
+
+// 7. Utilities
+@import './7-utilities/flex.scss';
+@import './7-utilities/font.scss';
+@import './7-utilities/margins.scss';
+@import './7-utilities/sizing.scss';
