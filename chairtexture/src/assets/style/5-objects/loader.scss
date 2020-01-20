@@ -1,0 +1,15 @@
+@import "@/assets/style/1-settings/colors.scss";
+
+.o-loader {
+    height: auto;
+    width: 40px;
+    text-align: center;
+}
+
+/*
+  Set the color of the icon
+*/
+svg path,
+svg rect {
+    fill: $primary-color;
+}

@@ -1,0 +1,6 @@
+@mixin changeMenuColor($color) {
+    fill: $color;
+    stroke: $color;
+    border-color: $color;
+    color: darken($color, 20%);
+}
