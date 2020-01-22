@@ -1,0 +1,21 @@
+::selection {
+	color: $rose-white;
+	background-color: $bright-turquoise;
+}
+
+html,
+body {
+	// Sizing
+	min-height: 100vh;
+
+	// Styling
+	font-family: $font-family;
+	font-size: $font-size;
+	line-height: $baseline * 2.5;
+	font-weight: $font-weight;
+
+	color: $font-color;
+	background: $light-color;
+
+	box-sizing: border-box;
+}

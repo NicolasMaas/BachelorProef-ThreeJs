@@ -5,27 +5,29 @@
 </template>
 
 <script>
-import * as THREE from 'three';
-import GLTFLoader from 'three-gltf-loader';
-import OrbitControls from 'three-orbitcontrols';
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as THREE from "three";
+import GLTFLoader from "three-gltf-loader";
+import OrbitControls from "three-orbitcontrols";
+import DragControls from "three-dragcontrols";
+// import { DragControls } from "three/examples/jsm/controls/DragControls.js";
 
 export default {
-	name: 'home',
+	name: "home",
 
 	data() {
 		return {
-			camera: '',
-			scene: '',
-			renderer: '',
-			controls: '',
-			windowHalfX: '',
-			windowHalfY: '',
-			model: '',
-			texture: '',
-			textureLegs: '',
-			color: '#0000FF',
-			pointLight: '',
+			camera: "",
+			scene: "",
+			renderer: "",
+			controls: "",
+			dragControls: "",
+			windowHalfX: "",
+			windowHalfY: "",
+			model: "",
+			texture: "",
+			textureLegs: "",
+			color: "#0000FF",
+			pointLight: ""
 		};
 	},
 
@@ -50,7 +52,7 @@ export default {
 		let coords = {
 			x: 10,
 			y: 200,
-			z: 500,
+			z: 500
 		};
 		this.cameraPosition(coords);
 
@@ -61,14 +63,27 @@ export default {
 		// Init renderer
 		this.renderer = new THREE.WebGLRenderer({ antialias: true });
 		this.renderer.setSize(this.windowHalfX, this.windowHalfY);
-		document.querySelector('#app').appendChild(this.renderer.domElement);
+		document.querySelector("#app").appendChild(this.renderer.domElement);
 
 		// Add controls
 		this.controls = new THREE.OrbitControls(
 			this.camera,
 			this.renderer.domElement
 		);
-		this.controls.addEventListener('change', this.render);
+		this.controls.addEventListener("change", this.render);
+
+		this.dragControls = new DragControls(
+			this.model,
+			this.camera,
+			this.renderer.domElement
+		);
+
+		this.dragControls.addEventListener("dragstart", function() {
+			this.controls.enabled = false;
+		});
+		this.dragControls.addEventListener("dragend", function() {
+			this.controls.enabled = true;
+		});
 	},
 
 	//   async beforeMount() {
@@ -80,7 +95,7 @@ export default {
 		await this.loadTexture();
 
 		let loader = new GLTFLoader();
-		loader.load('./assets/models/chair_1/scene.gltf', gltf => {
+		loader.load("./assets/models/chair_1/scene.gltf", gltf => {
 			this.model = gltf.scene.children[0];
 
 			this.model.traverse(o => {
@@ -89,11 +104,11 @@ export default {
 					o.receiveShadow = true;
 
 					console.log(o.material);
-					if (o.material.name == '101095') {
+					if (o.material.name == "101095") {
 						o.material.map = this.texture;
 					}
 
-					if (o.material.name == 'Material_3') {
+					if (o.material.name == "Material_3") {
 						// o.material.map = this.textureLegs;
 					}
 					o.material.needsUpdate = true;
@@ -122,11 +137,11 @@ export default {
 			let loader = new THREE.TextureLoader();
 
 			this.texture = loader.load(
-				'./assets/models/chair_1/textures/101095_baseColor.jpeg'
+				"./assets/models/chair_1/textures/101095_baseColor.jpeg"
 			);
 
 			this.textureLegs = loader.load(
-				'./assets/models/chair_1/textures/Material_3_baseColor.jpeg'
+				"./assets/models/chair_1/textures/Material_3_baseColor.jpeg"
 			);
 		},
 
@@ -134,8 +149,8 @@ export default {
 			this.camera.position.x = coords.x || 0;
 			this.camera.position.y = coords.y || 0;
 			this.camera.position.z = coords.z || 0;
-		},
-	},
+		}
+	}
 };
 </script>
 

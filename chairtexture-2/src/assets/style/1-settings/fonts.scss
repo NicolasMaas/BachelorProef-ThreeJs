@@ -1,0 +1,50 @@
+$baseline: 8px;
+
+// Imports
+
+// Headers Font
+@font-face {
+    font-family: 'Biryani';
+    src: url('./assets/fonts/biryani-bold-webfont.woff2') format('woff2'),
+        url('./assets/fonts/biryani-bold-webfont.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+// Regular Text Font
+@font-face {
+    font-family: 'Rubik';
+    src: url('./assets/fonts/rubik-regular-webfont.woff2') format('woff2'),
+        url('./assets/fonts/rubik-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Rubik';
+    src: url('./assets/fonts/rubik-light-webfont.woff2') format('woff2'),
+        url('./assets/fonts/rubik-light-webfont.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Rubik';
+    src: url('./assets/fonts/rubik-medium-webfont.woff2') format('woff2'),
+        url('./assets/fonts/rubik-medium-webfont.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+// Fonts
+$font-family: "Rubik",
+sans-serif;
+$font-weight: normal;
+
+$font-family-headers: "Biryani",
+sans-serif;
+$font-weight-headers: 700;
+
+// Sizing
+$font-size: $baseline * 1.75;
+$line-height: $baseline * 3;

@@ -1,0 +1,56 @@
+@import '@/assets/style/1-settings/colors.scss';
+@import '@/assets/style/1-settings/fonts.scss';
+@import '@/assets/style/1-settings/border.scss';
+@import '@/assets/style/1-settings/shadows.scss';
+
+.o-button {
+    display: block;
+
+    padding: 14px 32px;
+
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+
+    font-family: $font-family;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.o-button--primary {
+    color: $rose-white;
+    background-color: darken($primary-color, 15%);
+
+    will-change: background-color;
+    transition: 200ms ease-out;
+
+    &:hover,
+    &:focus {
+        background-color: darken($primary-color, 20%);
+    }
+}
+
+.o-button--secondary {
+    color: $rose-white;
+    background-color: darken($color-pastas, 15%);
+
+    will-change: background-color;
+    transition: 200ms ease-out;
+
+    &:hover,
+    &:focus {
+        background-color: darken($color-pastas, 20%);
+    }
+}
+
+.o-button--finished {
+    padding: 10px 18px;
+
+    background-color: darken($primary-color, 15%);
+    color: $rose-white;
+
+    &:hover,
+    &:focus {
+        background-color: darken($primary-color, 20%);
+    }
+}
