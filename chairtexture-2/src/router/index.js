@@ -3,12 +3,17 @@ import VueRouter from 'vue-router';
 
 Vue.use(VueRouter);
 
-const routes = [
-	{
+const routes = [{
 		path: '/',
 		name: 'home',
 		component: () =>
-			import(/* webpackChunkName: "about" */ '../views/Home2.vue'),
+			import( /* webpackChunkName: "about" */ '../views/Home.vue'),
+	},
+	{
+		path: '/2',
+		name: 'home2',
+		component: () =>
+			import( /* webpackChunkName: "about" */ '../views/Home2.vue'),
 	},
 ];
 

@@ -1,262 +1,246 @@
 <template>
-	<div class="home">
-		<!-- <canvas></canvas> -->
-
-		<div class>
-			<div
-				class="o-row c-color-picker u-flex u-flex-direction-column u-justify-content-center u-align-items-center"
-			>
-				<p class="u-mb-sm">Lightcolor</p>
-				<VueColorpicker
-					v-model="color"
-					@change="onChange"
-				></VueColorpicker>
-			</div>
-		</div>
-	</div>
+  <div class="home">
+    <div class="c-colors">
+      <div class="c-color c-color--blue" @click="changeColorSeat('blue')"></div>
+      <div class="c-color c-color--green" @click="changeColorSeat('green')"></div>
+      <div class="c-color c-color--black" @click="changeColorSeat('black')"></div>
+      <div class="c-color c-color--grey" @click="changeColorSeat('grey')"></div>
+    </div>
+  </div>
 </template>
 
 <script>
-import * as THREE from 'three';
-import GLTFLoader from 'three-gltf-loader';
-import OrbitControls from 'three-orbitcontrols';
-import { VueColorpicker } from 'vue-colorpicker-pop';
-// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import * as THREE from "three";
+import GLTFLoader from "three-gltf-loader";
+import OrbitControls from "three-orbitcontrols";
+import DragControls from "three-dragcontrols";
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export default {
-	name: 'home',
+  name: "home",
 
-	components: {
-		VueColorpicker,
-	},
+  data() {
+    return {
+      objects: [],
+      model: "",
+      colors: [],
+      activeColor: "grey",
+      scene: "",
+      canvas: "",
+      camera: "",
+      cameraDistance: 300,
+      renderer: "",
 
-	data() {
-		return {
-			color: '#0000FF',
-			pointLight: '',
-		};
-	},
+      backgroundColor: "0xf1f1f1",
+      activeOption: "cushion",
+      isLoaded: false
+    };
+  },
 
-	created() {
-		let scene = new THREE.Scene();
-		scene.background = new THREE.Color(0xefefef);
-		let camera = new THREE.PerspectiveCamera(
-			45,
-			window.innerWidth / window.innerHeight,
-			1,
-			5000
-		);
-		// camera.rotation.y = ((45 / 180) * Math.PI) / 2;
-		// camera.rotation.y = 0;
-		camera.position.x = 10;
-		// camera.position.x = 500;
-		camera.position.y = 500;
-		camera.position.z = 1000;
+  created() {
+    // Init the scene & set background
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0xf1f1f1);
+    this.scene.fog = new THREE.Fog(0xf1f1f1, 500, 2000);
 
-		var pointLight = new THREE.PointLight(this.color, 2.5, 10000);
-		// pointLight.position.set(220, 100, 0);
-		pointLight.position.set(100, 100, 0);
-		pointLight.castShadow = true;
+    // Add ambient light
+    let ambientLight = new THREE.AmbientLight(0x404040, 1);
+    this.scene.add(ambientLight);
 
-		pointLight.shadow.mapSize.width = 1024; // default
-		pointLight.shadow.mapSize.height = 1024; // default
+    // Other lights
+    let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
+    hemiLight.position.set(0, 50, 80);
+    this.scene.add(hemiLight);
 
-		// pointLight.shadow.camera.near = 0; // default
-		pointLight.shadow.camera.far = 2000; // default
-		// pointLight.shadow.camera.fov = 1;
+    let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(-650, 12, 80);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    this.scene.add(dirLight);
 
-		pointLight.shadow.bias = -0.01;
+    let dirLight2 = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight2.position.set(650, 12, 80);
+    dirLight2.castShadow = true;
+    dirLight2.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    this.scene.add(dirLight2);
 
-		this.pointLight = pointLight;
-		scene.add(pointLight);
+    // Add floor
+    var floorGeometry = new THREE.PlaneGeometry(800, 800, 1, 1);
+    var floorMaterial = new THREE.MeshPhongMaterial({
+      color: 0xeeeeee,
+      shininess: 30
+    });
 
-		var sphereSize = 10;
-		var pointLightHelper = new THREE.PointLightHelper(
-			pointLight,
-			sphereSize
-		);
-		scene.add(pointLightHelper);
+    var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -0.5 * Math.PI;
+    floor.receiveShadow = true;
+    floor.position.y = -1;
+    floor.position.x = 0;
+    this.scene.add(floor);
 
-		var pointLight2 = new THREE.PointLight(0xfff1c4, 0.2, 1000);
-		pointLight2.position.set(100, 0, 0);
-		pointLight2.castShadow = true;
+    // Init the renderer
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
 
-		pointLight2.shadow.mapSize.width = 1024;
-		pointLight2.shadow.mapSize.height = 1024;
+    document.querySelector("#app").appendChild(this.renderer.domElement);
 
-		// pointLight2.shadow.camera.near = 0.5;
-		pointLight2.shadow.camera.far = 2000;
-		// pointLight2.shadow.camera.fov = 1;
+    window.addEventListener("resize", () => {
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+    });
 
-		pointLight2.shadow.bias = -0.01;
+    // Add a camera
+    this.camera = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      5000
+    );
+    this.camera.position.z = this.cameraDistance;
+    this.camera.position.x = 100;
+    this.camera.position.y = 180;
+    this.camera.rotation.x = Math.PI;
 
-		scene.add(pointLight2);
+    this.animate();
+  },
 
-		var sphereSize = 10;
-		var pointLightHelper = new THREE.PointLightHelper(
-			pointLight2,
-			sphereSize
-		);
-		scene.add(pointLightHelper);
+  mounted() {},
 
-		// var light2 = new THREE.PointLight(0xffffff, 2, 1000);
-		// light2.position.set(200, 200, 200);
-		// scene.add(light2);
+  methods: {
+    render() {
+      this.renderer.render(this.scene, this.camera);
+    },
 
-		// var spotLight = new THREE.SpotLight(0xffffff);
-		// spotLight.position.set(250, 300, 250);
+    animate() {
+      requestAnimationFrame(animate);
+      this.renderer.render(this.scene, this.camera);
+    },
 
-		// spotLight.castShadow = true;
+    loadTexture() {
+      this.texture =
+        "./assets/models/chair_1/textures/101095_baseColor_green.jpg";
 
-		// spotLight.shadow.mapSize.width = 1024;
-		// spotLight.shadow.mapSize.height = 1024;
+      this.textureLegs =
+        "./assets/models/chair_1/textures/Material_3_baseColor.jpeg";
+    },
 
-		// spotLight.shadow.camera.near = 500;
-		// spotLight.shadow.camera.far = 4000;
-		// spotLight.shadow.camera.fov = 30;
+    changeColorSeat(color) {
+      switch (color) {
+        case "grey":
+          this.texture =
+            "./assets/models/chair_1/textures/101095_baseColor.jpeg";
+          this.changeTextureSeat();
+          this.render();
+          break;
 
-		// scene.add(spotLight);
+        case "blue":
+          this.texture =
+            "./assets/models/chair_1/textures/101095_baseColor_blue.jpg";
+          this.changeTextureSeat();
+          this.render();
+          break;
 
-		var ambientLight = new THREE.AmbientLight(0x404040, 100); // soft white light
-		scene.add(ambientLight);
+        case "green":
+          this.texture =
+            "./assets/models/chair_1/textures/101095_baseColor_green.jpg";
+          this.changeTextureSeat();
+          this.render();
+          break;
 
-		// let directionalLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
-		// // directionalLight.position.set(100, 100, 100);
-		// scene.add(directionalLight);
+        case "black":
+          this.texture =
+            "./assets/models/chair_1/textures/101095_baseColor_black.jpg";
+          this.changeTextureSeat();
+          this.render();
+          break;
 
-		// light = new THREE.PointLight(0xc4c4c4, 1);
-		// light.position.set(0, 30, 10);
-		// scene.add(light);
+        default:
+          this.texture =
+            "./assets/models/chair_1/textures/101095_baseColor.jpeg";
+          this.changeTextureSeat();
+          this.render();
+          break;
+      }
+    },
 
-		// let spotlight = new THREE.SpotLight(0xffffff, 2);
-		// spotlight.position.set(10, 100, 10);
-		// scene.add(spotlight);
+    changeTextureSeat() {
+      this.model.traverse(o => {
+        if (o.isMesh) {
+          o.castShadow = true;
+          o.receiveShadow = true;
 
-		var renderer = new THREE.WebGLRenderer({ antialias: true });
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.shadowMap.enabled = true;
-		renderer.setPixelRatio(window.devicePixelRatio);
-		document.body.appendChild(renderer.domElement);
+          console.log(o.material.map);
 
-		let controls = new THREE.OrbitControls(camera, renderer.domElement);
-		controls.addEventListener('change', renderer);
+          if (o.material.name == "101095") {
+            o.material.map.image.src = this.texture;
+            o.material.map.needsUpdate = true;
+          }
+        }
+      });
 
-		var loader = new GLTFLoader();
-
-		loader.load(
-			'./assets/models/chair_1/scene.gltf',
-			function(gltf) {
-				let room = gltf.scene.children[0];
-				room.traverse(o => {
-					if (o.isMesh) {
-						o.castShadow = true;
-						o.receiveShadow = true;
-					}
-				});
-				room.scale.set(0.1, 0.1, 0.1);
-				room.position.y = 0;
-				room.position.x = 1000;
-				scene.add(gltf.scene);
-				animate();
-			},
-			undefined,
-			function(error) {
-				console.error(error);
-			}
-		);
-
-		function animate() {
-			renderer.render(scene, camera);
-			requestAnimationFrame(animate);
-		}
-	},
-
-	methods: {
-		onChange(color) {
-			this.color = this.rgbToColor(color);
-			this.pointLight.color.setHex(this.rgbToHex(color));
-		},
-
-		componentFromStr(numStr, percent) {
-			var num = Math.max(0, parseInt(numStr, 10));
-			return percent
-				? Math.floor((255 * Math.min(100, num)) / 100)
-				: Math.min(255, num);
-		},
-
-		newTexture() {
-			var newTexturePath =
-				'textures/' + document.getElementById('texture').value + '';
-
-			globalObject.traverse(function(child) {
-				if (child instanceof THREE.Mesh) {
-					//create a global var to reference later when changing textures
-					child;
-					//apply texture
-					child.material.map = THREE.ImageUtils.loadTexture(
-						newTexturePath
-					);
-					child.material.needsUpdate = true;
-				}
-			});
-		},
-
-		rgbToHex(rgb) {
-			var rgbRegex = /^rgb\(\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*\)$/;
-			var result,
-				r,
-				g,
-				b,
-				hex = '';
-			if ((result = rgbRegex.exec(rgb))) {
-				r = this.componentFromStr(result[1], result[2]);
-				g = this.componentFromStr(result[3], result[4]);
-				b = this.componentFromStr(result[5], result[6]);
-
-				hex =
-					'0x' +
-					(0x1000000 + (r << 16) + (g << 8) + b)
-						.toString(16)
-						.slice(1);
-
-				return hex;
-			}
-		},
-
-		rgbToColor(rgb) {
-			var rgbRegex = /^rgb\(\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*\)$/;
-			var result,
-				r,
-				g,
-				b,
-				hex = '';
-			if ((result = rgbRegex.exec(rgb))) {
-				r = this.componentFromStr(result[1], result[2]);
-				g = this.componentFromStr(result[3], result[4]);
-				b = this.componentFromStr(result[5], result[6]);
-
-				hex =
-					'#' +
-					(0x1000000 + (r << 16) + (g << 8) + b)
-						.toString(16)
-						.slice(1);
-
-				return hex;
-			}
-		},
-	},
+      //   this.scene.add(this.model);
+      this.animate();
+    }
+  }
 };
 </script>
 
 <style lang="scss">
 canvas {
-	width: 100%;
+  //   width: 100%;
 }
 
-.c-color-picker {
-	position: absolute;
-	bottom: 24px;
+.c-colors {
+  position: fixed;
+  bottom: 32px;
+  left: 0;
+  right: 0;
 
-	// width: 100%;
+  width: 90%;
+
+  background: #fff;
+  margin: 0 auto;
+  padding: 16px 24px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+
+  box-sizing: border-box;
+}
+
+.c-color {
+  width: 32px;
+  height: 32px;
+  content: " ";
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.c-color--blue {
+  background: rgb(29, 108, 255);
+}
+
+.c-color--red {
+  background: rgb(255, 74, 29);
+}
+
+.c-color--green {
+  background: rgb(7, 199, 55);
+}
+
+.c-color--black {
+  background: rgb(49, 49, 49);
+}
+
+.c-color--grey {
+  background: grey;
 }
 </style>

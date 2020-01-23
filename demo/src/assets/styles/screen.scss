@@ -1,0 +1,23 @@
+// 1. Settings
+
+// 2. Tools
+
+// 3. Generic
+
+// 4. Elements
+@import './4-elements/page.scss';
+
+// 5. Objects
+.c-button {
+    position: fixed;
+    bottom: 32px;
+    padding: 16px 32px;
+    background: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+// 6. Components
+
+// 7. Utilities

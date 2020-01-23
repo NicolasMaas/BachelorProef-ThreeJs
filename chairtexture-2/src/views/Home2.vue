@@ -2,7 +2,6 @@
   <div class="home">
     <div class="c-colors">
       <div class="c-color c-color--blue" @click="changeColorSeat('blue')"></div>
-      <div class="c-color c-color--red" @click="changeColorSeat('red')"></div>
       <div class="c-color c-color--green" @click="changeColorSeat('green')"></div>
       <div class="c-color c-color--black" @click="changeColorSeat('black')"></div>
       <div class="c-color c-color--grey" @click="changeColorSeat('grey')"></div>
@@ -15,7 +14,7 @@ import * as THREE from "three";
 import GLTFLoader from "three-gltf-loader";
 import OrbitControls from "three-orbitcontrols";
 import DragControls from "three-dragcontrols";
-// import { DragControls } from "three/examples/jsm/controls/DragControls.js";
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export default {
   name: "home",
@@ -139,7 +138,7 @@ export default {
       this.model.position.y = 0;
       this.model.position.x = 1050;
 
-      this.objects = this.model;
+      this.objects.push(this.model);
 
       this.scene.add(this.model);
       this.animate();
@@ -166,9 +165,11 @@ export default {
     );
 
     dragControls.addEventListener("dragstart", function() {
+      this.render();
       controls.enabled = false;
     });
     dragControls.addEventListener("dragend", function() {
+      this.render();
       controls.enabled = true;
     });
 
@@ -198,31 +199,35 @@ export default {
           this.texture =
             "./assets/models/chair_1/textures/101095_baseColor.jpeg";
           this.changeTextureSeat();
+          this.render();
           break;
 
         case "blue":
           this.texture =
             "./assets/models/chair_1/textures/101095_baseColor_blue.jpg";
           this.changeTextureSeat();
+          this.render();
           break;
 
         case "green":
           this.texture =
             "./assets/models/chair_1/textures/101095_baseColor_green.jpg";
           this.changeTextureSeat();
+          this.render();
           break;
 
         case "black":
-          console.log("Going black");
           this.texture =
             "./assets/models/chair_1/textures/101095_baseColor_black.jpg";
           this.changeTextureSeat();
+          this.render();
           break;
 
         default:
           this.texture =
             "./assets/models/chair_1/textures/101095_baseColor.jpeg";
           this.changeTextureSeat();
+          this.render();
           break;
       }
     },
@@ -241,6 +246,9 @@ export default {
           }
         }
       });
+
+      //   this.scene.add(this.model);
+      this.animate();
     }
   }
 };
