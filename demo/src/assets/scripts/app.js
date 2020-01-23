@@ -18,7 +18,7 @@ const INITIAL_MAP = [{
 
 let cameraDistance = 7;
 let model, sack;
-let activeColor = 'red';
+let activeColor = 'blue';
 let objects = [];
 
 const button = document.querySelector("#changeTexture");
@@ -53,19 +53,13 @@ camera.position.z = cameraDistance;
 let loader = new THREE.GLTFLoader();
 
 loader.load(MODEL_PATH, gltf => {
-    console.log(gltf.scene.children[0])
     model = gltf.scene;
 
     model.traverse(o => {
         if (o.isMesh) {
             o.castShadow = true;
             o.receiveShadow = true;
-            if (o.name == "defaultMaterial") {
-                o.material = new THREE.MeshPhongMaterial({
-                    color: 0xffffff,
-                    shininess: 30
-                })
-            }
+
             objects.push(o);
         }
     });
@@ -77,17 +71,19 @@ loader.load(MODEL_PATH, gltf => {
     model.position.x = 0;
     model.position.z = 0;
 
+    changeTexture();
+
     scene.add(model);
 });
 
 loader.load("./sack_v2/scene.gltf", gltf => {
-    console.log(gltf.scene.children[0])
     sack = gltf.scene;
 
     sack.traverse(o => {
         if (o.isMesh) {
             o.castShadow = true;
             o.receiveShadow = true;
+
             objects.push(o);
         }
     });
@@ -103,8 +99,8 @@ loader.load("./sack_v2/scene.gltf", gltf => {
 });
 
 // Add lights
-let ambientLight = new THREE.AmbientLight(0xffffff, 1);
-scene.add(ambientLight)
+// let ambientLight = new THREE.AmbientLight(0xffffff, 1);
+// scene.add(ambientLight)
 
 let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
 hemiLight.position.set(0, 50, 0);
@@ -117,12 +113,12 @@ dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
 // Add directional Light to scene    
 scene.add(dirLight);
 
-let dirLight2 = new THREE.DirectionalLight(0xffffff, 1);
-dirLight2.position.set(8, 12, 8);
-dirLight2.castShadow = true;
-dirLight2.shadow.mapSize = new THREE.Vector2(1024, 1024);
-// Add directional Light to scene    
-scene.add(dirLight2);
+// let dirLight2 = new THREE.DirectionalLight(0xffffff, 1);
+// dirLight2.position.set(8, 12, 8);
+// dirLight2.castShadow = true;
+// dirLight2.shadow.mapSize = new THREE.Vector2(1024, 1024);
+// // Add directional Light to scene    
+// scene.add(dirLight2);
 
 // Floor
 let floorGeometry = new THREE.PlaneGeometry(10, 10, 1, 1);
@@ -191,25 +187,40 @@ function resizeRendererToDisplaySize(renderer) {
 }
 
 function changeTexture() {
-    console.log("Change the texture!");
     let textureLoader = new THREE.TextureLoader();
 
     if (activeColor == 'red') {
         let textureBody = textureLoader.load('./chesterfield/textures/Body_baseColor_blue.jpeg')
-        textureBody.rotation.x = Math.PI;
+        textureBody.flipY = false;
         let textureCushion = textureLoader.load('./chesterfield/textures/Cushion_baseColor_blue.jpeg');
+        textureCushion.flipY = false;
         activeColor = 'blue';
         textureApply(textureBody, textureCushion)
     } else {
         let textureBody = textureLoader.load('./chesterfield/textures/Body_baseColor.jpeg')
-        textureBody.rotation.x = Math.PI;
+        textureBody.flipY = false;
         let textureCushion = textureLoader.load('./chesterfield/textures/Cushion_baseColor.jpeg');
+        textureCushion.flipY = false;
         activeColor = 'red';
         textureApply(textureBody, textureCushion)
     }
 }
 
 function textureApply(textureBody, textureCushion) {
+    let textureLoader = new THREE.TextureLoader();
+
+    let aoMapBody = textureLoader.load('./chesterfield/textures/Body_metallicRoughness.png')
+    aoMapBody.flipY = false;
+
+    let normalMapBody = textureLoader.load('./chesterfield/textures/Body_normal.png');
+    normalMapBody.flipY = false;
+
+    let aoMapCushion = textureLoader.load('./chesterfield/textures/Cushion_metallicRoughness.png')
+    aoMapCushion.flipY = false;
+
+    let normalMapCushion = textureLoader.load('./chesterfield/textures/Cushion_normal.png');
+    normalMapCushion.flipY = false;
+
     model.traverse(o => {
         if (o.isMesh) {
             o.castShadow = true;
@@ -217,13 +228,17 @@ function textureApply(textureBody, textureCushion) {
 
             if (o.name == "Body") {
                 o.material = new THREE.MeshBasicMaterial({
-                    map: textureBody
+                    map: textureBody,
+                    aoMap: aoMapBody,
+                    normalMap: normalMapBody
                 })
             }
 
             if (o.name == "Cushion") {
                 o.material = new THREE.MeshBasicMaterial({
-                    map: textureCushion
+                    map: textureCushion,
+                    aoMap: aoMapCushion,
+                    normalMap: normalMapCushion
                 })
             }
             objects.push(o);
